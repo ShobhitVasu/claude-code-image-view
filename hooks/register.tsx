@@ -20,11 +20,13 @@ const fit = (img: Img, maxCols: number, maxRows: number) => {
 }
 
 let count = 0
+const seen = new Set<string>()
 
 async function add($: any, raw: string): Promise<string | null> {
   const home = (await $.process.run(['sh', '-c', 'printf %s "$HOME"'])).stdout
   const src = raw.replace(/^~/, home)
-  const name = src.split('/').pop() ?? src
+  const base = src.split('/').pop() ?? src
+  const name = src.includes('/images/') ? `pasted-${base}` : base
   const png = `/tmp/image-view-${Date.now()}-${count++}.png`
   const made = await $.process.run(['sips', '-s', 'format', 'png', src, '--out', png])
   if (made.exitCode !== 0) return `Cannot read ${name}`
@@ -36,6 +38,17 @@ async function add($: any, raw: string): Promise<string | null> {
   await update($, images, list => [...list.filter(i => i.name !== name), img].slice(-30))
 
   return null
+}
+
+// Pasted images reach plugins as a type only; Claude Code keeps the file under the temp dir.
+async function addPasted($: any, n: number) {
+  const cmd = `find /private/tmp/claude-$(id -u) /tmp/claude-$(id -u) -path '*/images/*' -type f -mmin -30 -exec ls -t {} + 2>/dev/null`
+  const out = (await $.process.run(['sh', '-c', cmd])).stdout as string
+  const files = [...new Set(out.split('\n').filter(Boolean).map(f => f.replace(/^\/tmp\//, '/private/tmp/')))]
+  for (const f of files.filter(f => !seen.has(f)).slice(0, n)) {
+    seen.add(f)
+    await add($, f)
+  }
 }
 
 function show($: any) {
@@ -67,9 +80,11 @@ export const register: Register = on => {
   // Image paths typed or dropped into a prompt join the gallery.
   on('prompt.submit', async ($, e, next) => {
     const found = [...e.text.matchAll(PATH)].map(m => m[1] as string)
-    if (found.length) {
+    const pasted = (e.attachments ?? []).filter(a => a.type === 'image').length
+    if (found.length || pasted) {
       try {
         for (const p of found) await add($, p)
+        if (pasted) await addPasted($, pasted)
         void show($)
       } catch {
         // preview is best effort; never block the prompt

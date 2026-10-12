@@ -11,7 +11,7 @@
 
 - **Gallery pane** with thumbnail, file name and pixel size for every image
 - **Full preview** with `Back`, `Prev` and `Next` buttons and an `n/total` counter
-- **Auto-detect**: write an image path in a prompt and the pane opens by itself
+- **Auto-detect**: paste an image or write an image path in a prompt and the pane opens by itself
 - **Many formats**: png, jpg, gif, webp, heic, bmp, tiff
 - **Aspect ratio kept** in both views
 
@@ -59,7 +59,7 @@ look at ~/Desktop/screenshot.png
 
 ## Limits
 
-- Images pasted straight into the prompt cannot be previewed. Plugins only receive the attachment type, not its bytes. Use a file path.
+- Pasted images are found by reading Claude Code's temp image cache (`/tmp/claude-<uid>/*/images/`). If a pasted image does not show, use `/image-view <path>`.
 - macOS only.
 - Paths with spaces are not supported.
 - The gallery keeps the last 30 images. Converted copies are stored as `/tmp/image-view-*.png`.
