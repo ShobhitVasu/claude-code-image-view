@@ -1,1 +1,1 @@
-{ "name": "image-view", "version": "0.1.0", "description": "Preview images in a pane: thumbnails in a gallery, click one for a full preview.", "types": "./types/index.d.ts" }
+{ "name": "image-view", "version": "0.1.1", "description": "Preview images in a pane: thumbnails in a gallery, click one for a full preview.", "types": "./types/index.d.ts" }
