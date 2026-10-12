@@ -1,99 +1,99 @@
-# image-view
+<h1 align="center">image-view</h1>
 
-Claude Code plugin. Preview images in a side pane: thumbnails in a gallery, click one for a full preview.
+<p align="center">
+  Preview images inside Claude Code.<br/>
+  Thumbnails in a gallery. Click one for a full preview.
+</p>
+
+---
 
 ## Features
 
-- `/image-view <path> [path...]` opens the **Images** pane.
-- Image paths typed in a prompt (e.g. `~/Desktop/shot.png`) are added automatically.
-- **Gallery:** thumbnail, name, pixel size, **Full preview** button, **Clear** button.
-- **Full preview:** image fills the pane, aspect ratio kept. **Back / Prev / Next** buttons, title shows `name · W×H · n/total`.
-- Formats: anything macOS `sips` reads (png, jpg, gif, webp, heic, bmp, tiff).
+- **Gallery pane** with thumbnail, file name and pixel size for every image
+- **Full preview** with `Back`, `Prev` and `Next` buttons and an `n/total` counter
+- **Auto-detect**: write an image path in a prompt and the pane opens by itself
+- **Many formats**: png, jpg, gif, webp, heic, bmp, tiff
+- **Aspect ratio kept** in both views
 
 ## Requirements
 
-| Need | Why |
+| Requirement | Notes |
 | --- | --- |
-| macOS | PNG conversion and sizing use `sips` |
-| Claude Code with plugin support | Runs the hooks module |
-| Kitty-graphics terminal (kitty, Ghostty) | Draws real pictures. Other terminals show the file name instead |
+| macOS | PNG conversion uses the built-in `sips` |
+| Claude Code | Version with plugin support |
+| Ghostty or kitty | Draws real pictures. Other terminals show the file name instead |
 
 ## Install
-
-### Option A: try it for one session (quickest)
-
-```bash
-claude --plugin-dir ~/Desktop/image-view
-```
-
-Edits to files reload the plugin while the session runs.
-
-### Option B: install permanently via local marketplace
 
 Inside Claude Code:
 
 ```
-/plugin marketplace add ~/Desktop/image-view
-/plugin install image-view@image-view-local
+/plugin marketplace add ShobhitVasu/claude-code-image-view
+/plugin install image-view@image-view-marketplace
 ```
 
-Then run `/reload-plugins`, or restart Claude Code.
-
-### Option C: share via GitHub
-
-1. Push this folder to a repo (e.g. `youruser/image-view`).
-2. Others run:
-
-```
-/plugin marketplace add youruser/image-view
-/plugin install image-view@image-view-local
-```
+Then run `/reload-plugins` or restart Claude Code.
 
 ## Usage
+
+Open the pane with a path:
 
 ```
 /image-view ~/Desktop/screenshot.png
 /image-view ./a.jpg ./b.heic
 ```
 
-Or just write a path in a normal prompt: `look at ~/Desktop/screenshot.png`. The pane opens with the image.
+Or mention a path in any prompt:
 
-Click **Full preview** on a thumbnail. Use **Back** to return to the gallery. **Esc** closes the pane.
-
-## Verify
-
-```bash
-claude plugin validate ~/Desktop/image-view
+```
+look at ~/Desktop/screenshot.png
 ```
 
-Expect `Validation passed`. One warning about `prompt.submit` having no `.catch` is expected: the hook wraps its work in `try/catch` so a preview failure never blocks a prompt.
+| Action | How |
+| --- | --- |
+| Full preview | Click **Full preview** on a thumbnail |
+| Next / previous image | Click **Next** / **Prev** |
+| Back to gallery | Click **Back** |
+| Clear gallery | Click **Clear** |
+| Close pane | `Esc` |
 
 ## Limits
 
-- Images pasted directly into the prompt cannot be previewed. Plugins receive only the attachment type, not its bytes. Use a file path.
-- macOS only (`sips`).
-- Gallery keeps the last 30 images. Converted PNGs go to `/tmp/image-view-*.png`.
-- Paths containing spaces are not supported. Rename the file or move it.
+- Images pasted straight into the prompt cannot be previewed. Plugins only receive the attachment type, not its bytes. Use a file path.
+- macOS only.
+- Paths with spaces are not supported.
+- The gallery keeps the last 30 images. Converted copies are stored as `/tmp/image-view-*.png`.
 
 ## Troubleshooting
 
 | Symptom | Fix |
 | --- | --- |
-| Pane shows file name, no picture | Terminal lacks kitty graphics. Use Ghostty or kitty |
-| `Cannot read <file>` | Path wrong or format unsupported by `sips` |
-| Pane does not open | Run `/image-view <path>` manually. Narrow terminals (< 110 cols) hide unasked panes |
+| File name shown, no picture | Terminal lacks the kitty graphics protocol. Use Ghostty or kitty |
+| `Cannot read <file>` | Wrong path, or format not supported by `sips` |
+| Pane does not open | Run `/image-view <path>`. Terminals under 110 columns hide panes you did not open yourself |
 | Plugin not found | Run `/reload-plugins` or restart Claude Code |
-| Hook errors | Start with `claude --debug` and read the log |
+| Something else | Start with `claude --debug` and read the log |
 
-## Layout
+## Development
+
+```bash
+git clone git@github.com:ShobhitVasu/claude-code-image-view.git
+claude --plugin-dir ./claude-code-image-view
+claude plugin validate ./claude-code-image-view
+```
+
+File edits reload the plugin while the session runs.
 
 ```
-image-view/
-├── .claude-plugin/
-│   ├── plugin.json        manifest
-│   └── marketplace.json   local/GitHub install
-├── hooks/
-│   ├── hooks.json         points at register.tsx
-│   └── register.tsx       command, prompt hook, pane UI
-└── types/index.d.ts       plugin state contract
+.claude-plugin/
+  plugin.json          plugin manifest
+  marketplace.json     marketplace entry for /plugin install
+hooks/
+  hooks.json           points at register.tsx
+  register.tsx         command, prompt hook, pane UI
+types/index.d.ts       plugin state contract
 ```
+
+## License
+
+MIT

@@ -1,5 +1,6 @@
 {
-  "name": "image-view-local",
+  "name": "image-view-marketplace",
+  "description": "Image preview plugin for Claude Code.",
   "owner": { "name": "Shobhit" },
   "plugins": [
     { "name": "image-view", "source": "./", "description": "Preview images in a pane: thumbnails in a gallery, click one for a full preview." }
